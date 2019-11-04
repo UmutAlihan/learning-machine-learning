@@ -57,4 +57,121 @@ sequences = char_dataset.batch(seq_length+1, drop_remainder=True)
 
 for item in sequences.take(5):
   print(repr(''.join(idx2char[item.numpy()])))
-  
+
+
+#For each sequence, duplicate and shift it to form the input and target text by using the map method to apply a simple function to each batch:
+def split_input_target(chunk):
+    input_text = chunk[:-1]
+    target_text = chunk[1:]
+    return input_text, target_text
+
+dataset = sequences.map(split_input_target)
+
+for input_example, target_example in  dataset.take(1):
+  print ('Input data: ', repr(''.join(idx2char[input_example.numpy()])))
+  print ('Target data:', repr(''.join(idx2char[target_example.numpy()])))
+
+
+#Each index of these vectors are processed as one time step. For the input at time step 0, the model receives the index for "F" and trys to predict the index for "i" as the next character. At the next timestep, it does the same thing but the RNN considers the previous step context in addition to the current input character
+for i, (input_idx, target_idx) in enumerate(zip(input_example[:5], target_example[:5])):
+    print("Step {:4d}".format(i))
+    print("  input: {} ({:s})".format(input_idx, repr(idx2char[input_idx])))
+    print("  expected output: {} ({:s})".format(target_idx, repr(idx2char[target_idx])))
+
+
+##Create training batches
+#before feeding this data into the model, we need to shuffle the data and pack it into batches
+# Batch size
+BATCH_SIZE = 64
+
+# Buffer size to shuffle the dataset
+# (TF data is designed to work with possibly infinite sequences,
+# so it doesn't attempt to shuffle the entire sequence in memory. Instead,
+# it maintains a buffer in which it shuffles elements).
+BUFFER_SIZE = 10000
+
+dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
+dataset
+
+
+##Build The Model
+#For this simple example three layers are used to define our model:
+#tf.keras.layers.Embedding: The input layer. A trainable lookup table that will map the numbers of each character to a vector with embedding_dim dimensions
+#tf.keras.layers.GRU: A type of RNN with size units=rnn_units (You can also use a LSTM layer here.)
+#tf.keras.layers.Dense: The output layer, with vocab_size outputs
+# Length of the vocabulary in chars
+vocab_size = len(vocab)
+
+# The embedding dimension
+embedding_dim = 256
+
+# Number of RNN units
+rnn_units = 1024
+
+
+def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
+  model = tf.keras.Sequential([
+    tf.keras.layers.Embedding(vocab_size, embedding_dim,
+                              batch_input_shape=[batch_size, None]),
+    tf.keras.layers.GRU(rnn_units,
+                        return_sequences=True,
+                        stateful=True,
+                        recurrent_initializer='glorot_uniform'),
+    tf.keras.layers.Dense(vocab_size)
+  ])
+  return model
+
+model = build_model(
+  vocab_size = len(vocab),
+  embedding_dim=embedding_dim,
+  rnn_units=rnn_units,
+  batch_size=BATCH_SIZE)
+
+
+##Try the model
+for input_example_batch, target_example_batch in dataset.take(1):
+  example_batch_predictions = model(input_example_batch)
+  print(example_batch_predictions.shape, "# (batch_size, sequence_length, vocab_size)")
+
+#In the above example the sequence length of the input is 100 but the model can be run on inputs of any length:
+model.summary()
+
+#To get actual predictions from the model we need to sample from the output distribution, to get actual character indices. This distribution is defined by the logits over the character vocabulary.
+#Try it for the first example in the batch:
+sampled_indices = tf.random.categorical(example_batch_predictions[0], num_samples=1)
+#This gives us, at each timestep, a prediction of the next character index
+sampled_indices = tf.squeeze(sampled_indices,axis=-1).numpy()
+
+#Decode these to see the text predicted by this untrained model:
+print("Input: \n", repr("".join(idx2char[input_example_batch[0]])))
+print()
+print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices ])))
+
+
+##Train the model
+##Attach an optimizer, and a loss function
+def loss(labels, logits):
+  return tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
+
+example_batch_loss  = loss(target_example_batch, example_batch_predictions)
+print("Prediction shape: ", example_batch_predictions.shape, " # (batch_size, sequence_length, vocab_size)")
+print("scalar_loss:      ", example_batch_loss.numpy().mean())
+
+#Configure the training procedure using the tf.keras.Model.compile method. We'll use tf.keras.optimizers.Adam with default arguments and the loss function.
+model.compile(optimizer='adam', loss=loss)
+
+##Configure checkpoints
+# Directory where the checkpoints will be saved
+checkpoint_dir = './training_checkpoints'
+# Name of the checkpoint files
+checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt_{epoch}")
+
+checkpoint_callback=tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_prefix,
+    save_weights_only=True)
+
+##Execute the training
+EPOCHS=10
+history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
+
+
