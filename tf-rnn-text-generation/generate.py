@@ -8,27 +8,27 @@ import numpy as np
 import os
 import time
 
-#path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
+path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
 #print(path_to_file)
 
 # Read, then decode for py2 compat.
-#text = open(path_to_file, 'rb').read().decode(encoding='utf-8')
+text = open(path_to_file, 'rb').read().decode(encoding='utf-8')
 # length of text is the number of characters in it
 #print ('Length of text: {} characters'.format(len(text)))
 
 # The unique characters in the file
-#vocab = sorted(set(text))
+vocab = sorted(set(text))
 #print ('{} unique characters'.format(len(vocab)))
 
 
 
 ##Vectorize the text
 # Creating a mapping from unique characters to indices
-#char2idx = {u:i for i, u in enumerate(vocab)}
+char2idx = {u:i for i, u in enumerate(vocab)}
 #print("indexed characters: \n {}".format(char2idx))
-#idx2char = np.array(vocab)
+idx2char = np.array(vocab)
 
-#text_as_int = np.array([char2idx[c] for c in text])
+text_as_int = np.array([char2idx[c] for c in text])
 
 """print('{')
 for char,_ in zip(char2idx, range(20)):
@@ -46,26 +46,26 @@ seq_length = 100
 examples_per_epoch = len(text)//(seq_length+1)
 
 # Create training examples / targets
-#char_dataset = tf.data.Dataset.from_tensor_slices(text_as_int)
+char_dataset = tf.data.Dataset.from_tensor_slices(text_as_int)
 
 """for i in char_dataset.take(5):
   print(idx2char[i.numpy()])"""
 
 
 #The batch method lets us easily convert these individual characters to sequences of the desired size.
-#sequences = char_dataset.batch(seq_length+1, drop_remainder=True)
+sequences = char_dataset.batch(seq_length+1, drop_remainder=True)
 
 #for item in sequences.take(5):
 #  print(repr(''.join(idx2char[item.numpy()])))
 
 
 #For each sequence, duplicate and shift it to form the input and target text by using the map method to apply a simple function to each batch:
-#def split_input_target(chunk):
-#    input_text = chunk[:-1]
-#    target_text = chunk[1:]
-#    return input_text, target_text
+def split_input_target(chunk):
+    input_text = chunk[:-1]
+    target_text = chunk[1:]
+    return input_text, target_text
 
-#dataset = sequences.map(split_input_target)
+dataset = sequences.map(split_input_target)
 
 #for input_example, target_example in  dataset.take(1):
 #  print ('Input data: ', repr(''.join(idx2char[input_example.numpy()])))
@@ -90,7 +90,7 @@ BATCH_SIZE = 64
 # it maintains a buffer in which it shuffles elements).
 BUFFER_SIZE = 10000
 
-#dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
+dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
 #dataset
 
 
@@ -121,43 +121,44 @@ def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
   ])
   return model
 
-model = build_model(
-  vocab_size = len(vocab),
-  embedding_dim=embedding_dim,
-  rnn_units=rnn_units,
-  batch_size=BATCH_SIZE)
+#model = build_model(
+#  vocab_size = len(vocab),
+#  embedding_dim=embedding_dim,
+#  rnn_units=rnn_units,
+#  batch_size=BATCH_SIZE)
 
 
 ##Try the model
-for input_example_batch, target_example_batch in dataset.take(1):
-  example_batch_predictions = model(input_example_batch)
-  print(example_batch_predictions.shape, "# (batch_size, sequence_length, vocab_size)")
+#for input_example_batch, target_example_batch in dataset.take(1):
+#  example_batch_predictions = model(input_example_batch)
+#  print(example_batch_predictions.shape, "# (batch_size, sequence_length, vocab_size)")
 
 #In the above example the sequence length of the input is 100 but the model can be run on inputs of any length:
-model.summary()
+#model.summary()
 
 #To get actual predictions from the model we need to sample from the output distribution, to get actual character indices. This distribution is defined by the logits over the character vocabulary.
 #Try it for the first example in the batch:
-sampled_indices = tf.random.categorical(example_batch_predictions[0], num_samples=1)
+#sampled_indices = tf.random.categorical(example_batch_predictions[0], num_samples=1)
 #This gives us, at each timestep, a prediction of the next character index
-sampled_indices = tf.squeeze(sampled_indices,axis=-1).numpy()
+#sampled_indices = tf.squeeze(sampled_indices,axis=-1).numpy()
 
 #Decode these to see the text predicted by this untrained model:
 #print("Input: \n", repr("".join(idx2char[input_example_batch[0]])))
+#print()
 #print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices ])))
 
 
 ##Train the model
 ##Attach an optimizer, and a loss function
-def loss(labels, logits):
-  return tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
+#def loss(labels, logits):
+#  return tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
 
-example_batch_loss  = loss(target_example_batch, example_batch_predictions)
-print("Prediction shape: ", example_batch_predictions.shape, " # (batch_size, sequence_length, vocab_size)")
-print("scalar_loss:      ", example_batch_loss.numpy().mean())
+#example_batch_loss  = loss(target_example_batch, example_batch_predictions)
+#print("Prediction shape: ", example_batch_predictions.shape, " # (batch_size, sequence_length, vocab_size)")
+#print("scalar_loss:      ", example_batch_loss.numpy().mean())
 
 #Configure the training procedure using the tf.keras.Model.compile method. We'll use tf.keras.optimizers.Adam with default arguments and the loss function.
-model.compile(optimizer='adam', loss=loss)
+#model.compile(optimizer='adam', loss=loss)
 
 ##Configure checkpoints
 # Directory where the checkpoints will be saved
@@ -170,8 +171,8 @@ checkpoint_callback=tf.keras.callbacks.ModelCheckpoint(
     save_weights_only=True)
 
 ##Execute the training
-EPOCHS=50
-history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
+#EPOCHS=50
+#history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
 
 
 ##Generate text
