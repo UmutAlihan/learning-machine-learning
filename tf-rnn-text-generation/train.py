@@ -8,7 +8,8 @@ import numpy as np
 import os
 import time
 
-path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
+#path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
+path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dataset_cs"
 #print(path_to_file)
 
 # Read, then decode for py2 compat.
@@ -230,5 +231,5 @@ def generate_text(model, start_string):
   return (start_string + ''.join(text_generated))
 
 
-print(generate_text(model, start_string=u"ROMEO: "))
+print(generate_text(model, start_string=u"Günaydın "))
 
