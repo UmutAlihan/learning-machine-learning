@@ -1,0 +1,16 @@
+Notation:
+
+    FC = Fully connected (dense) layer
+    EO = Encoder output
+    H = hidden state
+    X = input to the decoder
+
+
+Pseude-code:
+
+ 1   score = FC(tanh(FC(EO) + FC(H)))
+ 2   attention weights = softmax(score, axis = 1)
+ 3   context vector = sum(attention weights * EO, axis = 1)
+ 4   embedding output = The input to the decoder X is passed through an embedding layer.
+ 5   merged vector = concat(embedding output, context vector)
+ 6   This merged vector is then given to the GRU
