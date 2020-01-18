@@ -163,7 +163,7 @@ def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
 
 ##Configure checkpoints
 # Directory where the checkpoints will be saved
-checkpoint_dir = './training_checkpoints'
+checkpoint_dir = './2-tc'
 # Name of the checkpoint files
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt_{epoch}")
 

@@ -5,3 +5,7 @@ training_checkpoints
 .Trash-1000
 my_model.h5
 sshfs-rpiw
+turkish-texts-tokenized
+nltk_data
+dataset
+
