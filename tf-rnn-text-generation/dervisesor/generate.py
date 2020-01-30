@@ -118,7 +118,7 @@ def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
                         return_sequences=True,
                         stateful=True,
                         recurrent_initializer='glorot_uniform'),
-    tf.keras.layers.Dense(vocab_size)
+    tf.keras.layers.Dense(vocab_size, activation='relu')
   ])
   return model
 

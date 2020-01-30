@@ -8,9 +8,12 @@ import numpy as np
 import os
 import time
 import sys
+#print("%x" % sys.maxsize, sys.maxsize > 2**32)
 
 #path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dataset_cs"
-path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/cemalnur-kitaplar/merged.txt"
+#path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/cemalnur-kitaplar/merged.txt"
+path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/turkish-texts-tokenized/ttt-111.txt"
+
 
 # Read, then decode for py2 compat.
 text = open(path_to_file, 'rb').read().decode(encoding='utf-8')
@@ -174,7 +177,7 @@ checkpoint_callback=tf.keras.callbacks.ModelCheckpoint(
     save_weights_only=True)
 
 ##Execute the training
-EPOCHS=15
+EPOCHS=20
 history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
 
 
