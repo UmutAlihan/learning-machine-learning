@@ -9,7 +9,8 @@ import os
 import time
 
 #path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
-path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/cemalnur-kitaplar/merged.txt"
+#path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/cemalnur-kitaplar/merged.txt"
+path_to_file = "/home/uad/datasets/cemalnur-kitaplar/preprocessed.txt
 #print(path_to_file)
 
 # Read, then decode for py2 compat.

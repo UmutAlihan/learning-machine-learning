@@ -12,7 +12,8 @@ import sys
 
 #path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dataset_cs"
 #path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/cemalnur-kitaplar/merged.txt"
-path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/turkish-texts-tokenized/ttt-111.txt"
+#path_to_file = "/home/uad/l-m-l/tf-rnn-text-generation/dervisesor/turkish-texts-tokenized/ttt-111.txt"
+path_to_file = "/home/uad/datasets/cemalnur-kitaplar/preprocessed.txt"
 
 
 # Read, then decode for py2 compat.
